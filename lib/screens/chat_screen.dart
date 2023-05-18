@@ -67,7 +67,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       decoration: kMessageTextFieldDecoration,
                     ),
                   ),
-                  ElevatedButton(
+                  TextButton(
                     onPressed: () {
                       //Implement send functionality.
                     },
