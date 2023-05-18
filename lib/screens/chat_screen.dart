@@ -42,13 +42,6 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void getMessages() async {
-    final messages = await _firestore.collection('messages').get();
-    messages.docs.forEach((message) {
-      print(message.data());
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,9 +51,8 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
               icon: Icon(Icons.close),
               onPressed: () {
-                getMessages();
-                // _auth.signOut();
-                // Navigator.pop(context);
+                _auth.signOut();
+                Navigator.pop(context);
               }),
         ],
         title: Text('⚡️Chat'),
@@ -71,6 +63,29 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            StreamBuilder<QuerySnapshot>(
+              stream: _firestore.collection('messages').snapshots(),
+              builder: (context, snapshot) {
+                List<Text> messageWidgets = [];
+                print('snapshot.hasData ${snapshot.hasData}');
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.lightBlueAccent,
+                    ),
+                  );
+                }
+                snapshot.data.docs.forEach((message) {
+                  final messageText = message.get('text');
+                  final messageSender = message.get('sender');
+                  final messageWidget = Text('$messageText from $messageSender');
+                  messageWidgets.add(messageWidget);
+                });
+                return Column(
+                  children: messageWidgets,
+                );
+              },
+            ),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
