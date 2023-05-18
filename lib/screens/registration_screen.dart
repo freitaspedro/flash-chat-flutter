@@ -20,6 +20,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String email;
   String password;
 
+  Future<UserCredential> createUser() async {
+    return await _auth.createUserWithEmailAndPassword(
+        email: email, password: password);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,8 +81,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       showSpinner = true;
                     });
                     try {
-                      final newUser = await _auth.createUserWithEmailAndPassword(
-                          email: email, password: password);
+                      final newUser = createUser();
                       if (newUser != null) {
                         Navigator.pushNamed(context, ChatScreen.id);
                       }

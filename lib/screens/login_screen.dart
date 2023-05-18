@@ -20,6 +20,11 @@ class _LoginScreenState extends State<LoginScreen> {
   String email;
   String password;
 
+  Future<UserCredential> signIn() async {
+    return await _auth.signInWithEmailAndPassword(
+        email: email, password: password);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,8 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       showSpinner = true;
                     });
                     try {
-                      final user = await _auth.signInWithEmailAndPassword(
-                          email: email, password: password);
+                      final user = signIn();
                       if (user != null) {
                         Navigator.pushNamed(context, ChatScreen.id);
                       }

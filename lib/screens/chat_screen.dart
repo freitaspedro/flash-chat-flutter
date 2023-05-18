@@ -35,6 +35,20 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void saveMessage() {
+    _firestore.collection('messages').add({
+      'sender': loggedInUser.email,
+      'text': messageText,
+    });
+  }
+
+  void getMessages() async {
+    final messages = await _firestore.collection('messages').get();
+    messages.docs.forEach((message) {
+      print(message.data());
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,8 +58,9 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
               icon: Icon(Icons.close),
               onPressed: () {
-                _auth.signOut();
-                Navigator.pop(context);
+                getMessages();
+                // _auth.signOut();
+                // Navigator.pop(context);
               }),
         ],
         title: Text('⚡️Chat'),
@@ -71,10 +86,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      _firestore.collection('messages').add({
-                        'sender': loggedInUser.email,
-                        'text': messageText,
-                      });
+                      if (messageText != null) {
+                        saveMessage();
+                      }
                     },
                     child: Text(
                       'Send',
