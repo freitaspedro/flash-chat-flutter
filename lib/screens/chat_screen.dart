@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
+import 'package:flash_chat/components/messages_stream.dart';
 
 class ChatScreen extends StatefulWidget {
 
@@ -15,6 +16,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
+  final messageTextController = TextEditingController();
   User loggedInUser;
   String messageText;
 
@@ -63,29 +65,7 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            StreamBuilder<QuerySnapshot>(
-              stream: _firestore.collection('messages').snapshots(),
-              builder: (context, snapshot) {
-                List<Text> messageWidgets = [];
-                print('snapshot.hasData ${snapshot.hasData}');
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.lightBlueAccent,
-                    ),
-                  );
-                }
-                snapshot.data.docs.forEach((message) {
-                  final messageText = message.get('text');
-                  final messageSender = message.get('sender');
-                  final messageWidget = Text('$messageText from $messageSender');
-                  messageWidgets.add(messageWidget);
-                });
-                return Column(
-                  children: messageWidgets,
-                );
-              },
-            ),
+            MessagesStream(instance: _firestore),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -93,6 +73,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
+                      controller: messageTextController,
                       onChanged: (value) {
                         messageText = value;
                       },
@@ -101,6 +82,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   TextButton(
                     onPressed: () {
+                      messageTextController.clear();
                       if (messageText != null) {
                         saveMessage();
                       }
